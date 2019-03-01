@@ -2,15 +2,28 @@ import glob
 import serial
 import sys
 
+def panic():
+	print("Oh shit, everything is broken in Serial Land")
+
+
 class Communication_Device:
 	
 	def __init__(self, InType=None, Port=0, BitRate=0, NumSensors=0):
 		
 		# What type of input are we dealing with (Serial, Socket, etc)
 		if InType is None:
-			print(self.listSerialPorts())
+			self.InType, self.Port = ('COM', self.listSerialPorts()[0]) # assume the first port is Arduino 
+		else:
+			self.InType = InType
+			self.Port = Port
 			
-		self.InType = InType
+		# Create the Arduino member
+		try:
+			self.arduino = serial.Serial(self.Port)
+		except (OSError, serial.SerialException):
+			panic()
+			
+		
 	
 	def listSerialPorts(self):
 		# http://stackoverflow.com/questions/12090503/listing-available-com-ports-with-python
@@ -38,6 +51,12 @@ class Communication_Device:
 			except (OSError, serial.SerialException):
 				pass
 		return result
-
+		
+	def read_data_stream(self):
+		while True:
+			data = self.arduino.readline()
+			if data:
+				print(data)
 
 c = Communication_Device()
+c.read_data_stream()
