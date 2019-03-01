@@ -1,0 +1,4 @@
+TODO:
+ -> Get Data From Sensor(s)
+ -> Convert Data to MIDI
+ -> Pipe MIDI to Reaper
