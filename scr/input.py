@@ -59,35 +59,30 @@ class Communication_Device:
 			except (OSError, serial.SerialException):
 				pass
 		return result
-	
-	def log_data(self, data):
-		f.write(data)
-		f.write("\n")
 		
 	def read_data_stream(self):
 		timeout = time.time() + 60*0.30 # Read data for 30 seconds
 
 		while True:
 			if sys.platform.startswith('win'):
-				leap_data = process_frame(self.leap.frame())
+				leap_data = self.process_frame(self.leap.frame())
 			else:
-				leap_data = process_frame(self.leap[0].frame())
+				leap_data = self.process_frame(self.leap[0].frame())
 
 			if leap_data:
-				self.log_data(leap_data)
 				print(leap_data)
 			arduino_data = self.arduino.readline()[:-2].decode("utf-8")
 			if arduino_data:
-				self.log_data(arduino_data)
 				print(arduino_data)
 			
+			self.log_data(leap_data, arduino_data)
 			if time.time() > timeout:
 				break
 
 		if not sys.platform.startswith('win'):
 			self.leap[0].remove_listener(self.leap[1])
 
-	def process_frame(frame):
+	def process_frame(self, frame):
 		
 		if frame is "Invalid Frame":
 			return None
@@ -117,6 +112,8 @@ class Communication_Device:
 			
 		return data
 		
+	def log_data(self, leap_data, ardin_data):
+		f.write("{0}, {1}".format(ardin_data, leap_data))
 		
 c = Communication_Device()
 c.read_data_stream()
