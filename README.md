@@ -9,7 +9,7 @@ Developed by:
 
 * Eric Chan - Hardware / Programming
 
-* Christopher Medrano - Music Theory / Programming / Reaper
+* Christopher Medrano - Music Theory / MIDI Sequencing & Programming
 
 * Anthony Hevia - Hardware / Programming
 
