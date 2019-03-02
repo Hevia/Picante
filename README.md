@@ -5,9 +5,13 @@ Picante is a music generation program written in Python. It generates unique mus
 
 Developed by:
 Connor Wescott - 
+
 Eric Chan - 
+
 Christopher Medrano - 
+
 Anthony Hevia - 
 
 
-## Dependcies 
+
+## Dependencies 
