@@ -60,11 +60,16 @@ class Communication_Device:
 		
 	def read_data_stream(self):
 		while True:
-			print(self.leap[0].frame())
+			if sys.platform.startswith('win'):
+				print(self.leap.frame())
+			else:
+				print(self.leap[0].frame())
+
 			arduino_data = self.arduino.readline()[:-2].decode("utf-8")
 			if arduino_data:
 				print(arduino_data)
-		self.leap[0].remove_listener(self.leap[1])
+		if not sys.platform.startswith('win'):
+			self.leap[0].remove_listener(self.leap[1])
 
 c = Communication_Device()
 c.read_data_stream()
