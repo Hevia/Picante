@@ -1,8 +1,0 @@
-TODO:
- -> Edit Ardinuo Code to support linux USB ports (http://forum.arduino.cc/index.php?topic=163002.0)
- -> Get Data From Sensor(s) 
-   -> Input File:
-         --- Com Obj (InType, Port, BitRate, NumSensors)
-         ---- Sensor Obj(ID, type, ...)
- -> Convert Data to MIDI
- -> Pipe MIDI to Reaper
