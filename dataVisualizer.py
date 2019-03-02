@@ -25,16 +25,17 @@ class Sensor:
         self.ax1.plot(xs, ys)
 
     def makeFigure(self):
-        animation.FuncAnimation(self.fig, self.animate, interval=1000)
+        ani = animation.FuncAnimation(self.fig, self.animate, interval=1000)
         plt.show()
 
 
-# Test Implementation
-# s = Sensor()
-# s.addData(1, 0)
-# s.addData(2, 2)
-# s.addData(3, 3)
-# s.makeFigure();
 
+# Test Implementation
+s = Sensor()
+s.addData(3293, 512)
+s.addData(3295, 512)
+s.addData(3347, 511)
+s.addData(3553, 512)
+s.makeFigure();
 
 # Test case, make sensorData
