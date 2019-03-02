@@ -54,7 +54,7 @@ class Communication_Device:
 		
 	def read_data_stream(self):
 		while True:
-			data = self.arduino.readline()
+			data = self.arduino.readline()[:-2].decode("utf-8")
 			if data:
 				print(data)
 
