@@ -26,3 +26,9 @@ Developed by:
 
 
 ## Dependencies 
+
+* rtmidi
+
+* pyserial
+
+* matplotlib
