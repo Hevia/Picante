@@ -1,12 +1,19 @@
 import sys
-from leap_python3 import Leap 
+
+if sys.platform.startswith('win'):
+	import leapMotionController as Leap
+else:
+	from leap_python3 import Leap 
 
 def create_controller():
-	listener = SampleListener()
-	controller = Leap.Controller()
-	
-	controller.add_listener(listener)
-	return (controller, listener)
+	if sys.platform.startswith('win'):
+		return Leap.leapMotionController()
+	else:
+		listener = SampleListener()
+		controller = Leap.Controller()
+		
+		controller.add_listener(listener)
+		return (controller, listener)
 
 def get_input(time):
 	listener = SampleListener()
