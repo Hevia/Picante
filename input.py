@@ -12,14 +12,14 @@ class Communication_Device:
 		
 		# What type of input are we dealing with (Serial, Socket, etc)
 		if InType is None:
-			self.InType, self.Port = ('COM', self.listSerialPorts()[0]) # assume the first port is Arduino 
+			print(self.listSerialPorts())#self.InType, self.Port = ('COM', self.listSerialPorts()[0]) # assume the first port is Arduino 
 		else:
 			self.InType = InType
 			self.Port = Port
 			
 		# Create the Arduino member
 		try:
-			self.arduino = serial.Serial(self.Port)
+			self.arduino = serial.Serial("/dev/ttyACM0", baudrate=115200, timeout=0.1) # Port, Baud-Rate, Timeout
 		except (OSError, serial.SerialException):
 			panic()
 			
@@ -45,11 +45,10 @@ class Communication_Device:
 		for port in ports:
 			try:
 				s = serial.Serial(port)
-				print(s)
 				s.close()
 				result.append(port)
 			except (OSError, serial.SerialException):
-				pass
+				print("Could not open {0}".format(port))
 		return result
 		
 	def read_data_stream(self):
