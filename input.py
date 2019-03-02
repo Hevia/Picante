@@ -19,7 +19,7 @@ class Communication_Device:
 			
 		# Create the Arduino member
 		try:
-			self.arduino = serial.Serial(self.Port)
+			self.arduino = serial.Serial(self.Port, 115200, timeout=0.1) # Port, Baud-Rate, Timeout
 		except (OSError, serial.SerialException):
 			panic()
 			
