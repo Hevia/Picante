@@ -69,10 +69,13 @@ class Communication_Device:
 
 		while True:
 			if sys.platform.startswith('win'):
-				print(self.leap.frame())
+				leap_data = process_frame(self.leap.frame())
 			else:
-				print(self.leap[0].frame())
+				leap_data = process_frame(self.leap[0].frame())
 
+			if leap_data:
+				self.log_data(leap_data)
+				print(leap_data)
 			arduino_data = self.arduino.readline()[:-2].decode("utf-8")
 			if arduino_data:
 				self.log_data(arduino_data)
@@ -84,5 +87,36 @@ class Communication_Device:
 		if not sys.platform.startswith('win'):
 			self.leap[0].remove_listener(self.leap[1])
 
+	def process_frame(frame):
+		
+		if frame is "Invalid Frame":
+			return None
+		
+		data = {}
+		print("Frame id: {0}, timestamp {1}, hands: {2}, fingers {3}".format(frame.id, frame.timestamp, len(frame.hands), len(frame.fingers)))
+
+		# Get hands
+		for hand in frame.hands:
+			handData = []
+			handType = "LH" if hand.is_left else "RH"
+			print("   {0}, id {1}, position: {0}".format(handType, hand.id, hand.palm_position))
+			handData.append(hand.palm_position)
+			# Get the hand's normal vector and direction
+			normal = hand.palm_normal
+			direction = hand.direction
+
+			# Calculate the hand's pitch, roll and yaw angles
+			print("   pitch: {0} degrees, roll: {1} degrees, yaw: {2} degrees".format(direction.pitch * Leap.RAD_TO_DEG, normal.roll * Leap.RAD_TO_DEG, direction.yaw * Leap.RAD_TO_DEG))
+			handData.append((direction.pitch * Leap.RAD_TO_DEG, normal.roll * Leap.RAD_TO_DEG, direction.yaw * Leap.RAD_TO_DEG))
+
+			# Get fingers
+			for finger in hand.fingers:
+				print("     {0} finger, id {1}, lenght: {2}mm, width {3}mm".format(self.finger_names[finger.type], finger.id, finger.length, finger.width))
+			
+			data[handType] = handData
+			
+		return data
+		
+		
 c = Communication_Device()
 c.read_data_stream()
