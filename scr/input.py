@@ -1,6 +1,9 @@
 import glob
 import serial
 import sys
+import leap_input
+
+#leap_input.get_input()
 
 def panic():
 	print("Oh shit, everything is broken in Serial Land")
@@ -20,10 +23,13 @@ class Communication_Device:
 		# Create the Arduino member
 		try:
 			self.arduino = serial.Serial(self.Port)
+			self.leap = self.__initLeap() # SEG FAULT HERE
 		except (OSError, serial.SerialException):
 			panic()
 			
 		
+	def __initLeap(self):
+		return leap_input.create_controller()
 	
 	def listSerialPorts(self):
 		# http://stackoverflow.com/questions/12090503/listing-available-com-ports-with-python
@@ -54,9 +60,11 @@ class Communication_Device:
 		
 	def read_data_stream(self):
 		while True:
-			data = self.arduino.readline()[:-2].decode("utf-8")
-			if data:
-				print(data)
+			print(self.leap[0].frame())
+			arduino_data = self.arduino.readline()[:-2].decode("utf-8")
+			if arduino_data:
+				print(arduino_data)
+		self.leap[0].remove_listener(self.leap[1])
 
 c = Communication_Device()
 c.read_data_stream()
