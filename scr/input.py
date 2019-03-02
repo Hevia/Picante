@@ -4,6 +4,7 @@ import sys
 import leap_input
 
 #leap_input.get_input()
+f = open("output.txt", "a")
 
 def panic():
 	print("Oh shit, everything is broken in Serial Land")
@@ -57,6 +58,10 @@ class Communication_Device:
 			except (OSError, serial.SerialException):
 				pass
 		return result
+	
+	def log_data(self, data):
+		f.write(data)
+		f.write("\n")
 		
 	def read_data_stream(self):
 		while True:
@@ -67,6 +72,7 @@ class Communication_Device:
 
 			arduino_data = self.arduino.readline()[:-2].decode("utf-8")
 			if arduino_data:
+				self.log_data(arduino_data)
 				print(arduino_data)
 		if not sys.platform.startswith('win'):
 			self.leap[0].remove_listener(self.leap[1])
