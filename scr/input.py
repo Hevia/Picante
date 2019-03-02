@@ -2,6 +2,7 @@ import glob
 import serial
 import sys
 import leap_input
+import time
 
 #leap_input.get_input()
 f = open("output.txt", "a")
@@ -64,6 +65,8 @@ class Communication_Device:
 		f.write("\n")
 		
 	def read_data_stream(self):
+		timeout = time.time() + 60*0.30 # Read data for 30 seconds
+
 		while True:
 			if sys.platform.startswith('win'):
 				print(self.leap.frame())
@@ -74,6 +77,10 @@ class Communication_Device:
 			if arduino_data:
 				self.log_data(arduino_data)
 				print(arduino_data)
+			
+			if time.time() > timeout:
+				break
+
 		if not sys.platform.startswith('win'):
 			self.leap[0].remove_listener(self.leap[1])
 
