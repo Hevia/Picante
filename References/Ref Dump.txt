@@ -1,3 +1,4 @@
 #Dump all those sexy links in here
 
 How to get input from arduino (https://www.instructables.com/id/Arduino-Python-Communication-via-USB/)
+Data Visualization with Python (https://pythonprogramming.net/matplotlib-intro-tutorial/)
