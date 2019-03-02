@@ -1,0 +1,40 @@
+
+Music System : Flow Picante
+
+Once the input is received, the system needs to be able to output midi data live that can be interpreted as music. 
+To do this it will need to be able to process, or seemingly process, harmony, rhythm, and melody, which are the basic components of music.
+Within the context of the system, I believe that there should be different threads handling these components for robustness, and
+I believe the modularity will work to reduce complexity. 
+
+Here is a breakdown of the music components, where melody/harmonics is taking the sensor data and choosing what to do with it 
+Melody/Harmonics
+-Chord
+--Extensions
+--Rest
+-Melody
+--Note
+--Rest
+
+Rhythm
+-Drums
+--Kick
+--Snare
+--Hi Hat
+-Melody
+--Chords
+--Lead Melody
+
+Master Clock
+-Tempo
+--Subdivisions
+-Intensity
+-Instruments
+-Queues
+--Rhythm
+---Drums
+---Melody
+---Chords
+--Melody
+--Chords
+
+Sensors > Processing > Rhythm/Melody > Master Clock > Reascript > VST in Reaper
