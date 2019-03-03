@@ -147,6 +147,9 @@ class Communication_Device:
 	def log_data(self, leap_data, ardin_data):
 		if not ardin_data or not leap_data:
 			return
+		if len(ardin_data) == 1:
+			return
+
 
 		f.write("{0}, ".format(ardin_data))
 		for key in leap_data.keys():

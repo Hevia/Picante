@@ -88,12 +88,12 @@ class Sensor:
 
         if mapped_val < 0:
             mapped_val = -(math.exp(-mapped_val) - 1)
-            # print(window_low, ",", window_high, ",", slope, ",", mapped_val)
+            print(window_low, ",", window_high, ",", slope, ",", mapped_val)
             mapped_val = math.ceil(mapped_val)
 
         elif mapped_val > 0:
             mapped_val = math.exp(mapped_val) - 1
-            # print(window_low, ",", window_high, ",", slope, ",", mapped_val)
+            print(window_low, ",", window_high, ",", slope, ",", mapped_val)
             mapped_val = math.floor(mapped_val)
 
         if mapped_val > 4:
@@ -205,6 +205,7 @@ class Sensor:
         f = open(file_name, 'r')
         for line in f:
             cols = line.split(',')
+            print(cols)
             cols[0].strip('\n').replace(' ', '').replace('(', '').replace(')', '')
             cols[1].strip('\n').replace(' ', '').replace('(', '').replace(')', '')
             self.addGSRData(int(cols[1]), int(cols[0]))
@@ -240,11 +241,11 @@ class Sensor:
 
 
 # Test Code
-#s = Sensor()
+s = Sensor()
 # s.readData("test1.csv")
 # #s.makeFigure()
 # #print(len(s.values))
 # print(s.mapped_data)
 # print(s.mapTime())
 # print(s.calc_interval())
-#s.output_data("output.txt", "fancy-out.txt")
+s.output_data("output.txt", "fancy-out.txt")
