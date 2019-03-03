@@ -5,7 +5,7 @@ import leap_input
 import time
 
 #leap_input.get_input()
-f = open("output.txt", "a")
+f = open("output.txt", "w")
 
 def panic():
 	print("Oh shit, everything is broken in Serial Land")
@@ -84,7 +84,6 @@ class Communication_Device:
 	if sys.platform.startswith('win'):
 		def process_frame(self, frame):
 			data = {};
-			print(frame)
 			if frame is "Invalid Frame":
 				return None
 
@@ -132,7 +131,7 @@ class Communication_Device:
 			return data
 		
 	def log_data(self, leap_data, ardin_data):
-		f.write("{0}, {1}".format(ardin_data, leap_data))
+		f.write("{0}, {1} \n".format(ardin_data, leap_data))
 
 c = Communication_Device()
 c.read_data_stream()
