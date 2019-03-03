@@ -118,7 +118,6 @@ class Communication_Device:
 				handType = "LH" if hand.is_left else "RH"
 				print("   {0}, id {1}, position: {0}".format(handType, hand.id, hand.palm_position))
 				handData.append(hand.palm_position)
-				# Get the hand's normal vector and direction
 				normal = hand.palm_normal
 				direction = hand.direction
 
@@ -131,6 +130,7 @@ class Communication_Device:
 					print("     {0} finger, id {1}, lenght: {2}mm, width {3}mm".format(self.finger_names[finger.type], finger.id, finger.length, finger.width))
 
 				data[handType] = handData
+				# Get the hand's normal vector and direction
 
 			return data
 		
