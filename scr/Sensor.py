@@ -113,41 +113,67 @@ class Sensor:
     def calc_hand_stuff(self, in_file):
         out = []
         for line in in_file:
-             hand_data = line.strip('\n').replace('(', '').replace(')','').replace(' ', '').split(',')
-             #print(hand_data)
-             left_hand = hand_data[2:5]
-             right_hand = hand_data[5:8]
-             left_velocity = hand_data[8:11]
-             right_velocity = hand_data[11:]
-        
-             print("-------------------------")
-             print(left_hand)
-             print(right_hand)
-             print(left_velocity)
-             print(right_velocity)
-             sum_left = sum_right = rV = lV = 0
-             if left_hand and not left_hand[0] == '':
-                sum_left = float(left_hand[0])+float(left_hand[1])+float(left_hand[2])
-             if right_hand and not right_hand[0] == '':
-                sum_right = float(right_hand[0])+float(right_hand[1])+float(right_hand[2])
-        
-             lV, rV = FUNCTION(left_velocity, right_velocity)
-             
-             if sum_left < 0:
-                 out.append(-1)
-             elif sum_left > 0:
-                 out.append(1)
-             else:
-                 out.append(0)
-        
-             if sum_right < 0:
-                 out.append(-1)
-             elif sum_right > 0:
-                 out.append(1)
-             else:
-                 out.append(0)
+            hand_data = line.strip('\n').replace('(', '').replace(')', '').replace(' ', '').split(',')
+            # print(hand_data)
+            left_hand = hand_data[2:5]
+            right_hand = hand_data[5:8]
+            left_velocity = hand_data[8:11]
+            right_velocity = hand_data[11:]
 
+            print("-------------------------")
+            print(left_hand)
+            print(right_hand)
+            print(left_velocity)
+            print(right_velocity)
+            sum_left = sum_right = rV = lV = 0
+            if left_hand and not left_hand[0] == '':
+                sum_left = float(left_hand[0]) + float(left_hand[1]) + float(left_hand[2])
+            if right_hand and not right_hand[0] == '':
+                sum_right = float(right_hand[0]) + float(right_hand[1]) + float(right_hand[2])
+
+            pTolerance = 500
+            vTolerance = 300
+            lV, rV = self.calc_hand_velocity(left_velocity, right_velocity, vTolerance)
+
+            if sum_left < pTolerance:
+                out.append(-1)
+            elif sum_left > pTolerance:
+                out.append(1)
+            else:
+                out.append(0)
+
+            if sum_right < pTolerance:
+                out.append(-1)
+            elif sum_right > pTolerance:
+                out.append(1)
+            else:
+                out.append(0)
+
+            out.append(lV)
+            out.append(rV)
         return out
+
+    def calc_hand_velocity(self, left_velocity, right_velocity, vTolerance):
+        tolerance = vTolerance
+        lV = rV = 0
+
+        if not left_velocity:
+            sum = 0
+            for v in left_velocity:
+                v += sum
+            if sum > tolerance:
+                lV = 1
+            elif sum < tolerance:
+                lV = -1
+        if not right_velocity:
+            sum = 0
+            for v in right_velocity:
+                v += sum
+            if sum > tolerance:
+                rV = 1
+            elif sum < tolerance:
+                rV = -1
+        return lV, rV
 
     def calc_interval(self):
         print(self.n_sec)
