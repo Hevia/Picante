@@ -2,9 +2,6 @@ import time
 import rtmidi
 import numpy as np
 import random
-import math
-import asyncio
-from typing import Callable, Any, List
 
 # Setting up Music Theory
 key_roots = {
@@ -142,6 +139,7 @@ def play_lead(on, note):
         if playing_note != -1:
             midiout.send_message([0x82, playing_note, 0])
         #midiout.send_message(([0x82, playing_note, 0]))
+            midiout.send_message(([0x82, playing_note, 0]))
         playing_note = -1
 
 
@@ -188,6 +186,8 @@ def update_note_map(sdiv, index):
     # Change Melody
     if random.random() < 0.7:
         melody_note_change = get_input(int(index/2 % len(fp)))
+        if melody_note_change == 0:
+            melody_note_change = random.randint(-1, 1)
         global melody_note
         melody_note = (melody_note + melody_note_change) % 8
         note_map[4, sdiv] = note_on
@@ -263,9 +263,9 @@ def update_note_map(sdiv, index):
             key_notes = key + scales[scale]
     elif intensity < 15:
         chord_root = chord_priority[random.randint(0, 6)]
-        # turn on/off hi hats
-        note_map[2, ] = np.repeat(random.randint(0, 1), subdivs)
         if intensity_cat != 3:
+            # turn on/off hi hats
+            note_map[2, ] = np.repeat(random.randint(0, 1), subdivs)
             octave = 2
             # Set bass line
             note_map[5, ] = np.repeat(1, subdivs)
@@ -276,8 +276,10 @@ def update_note_map(sdiv, index):
             key_notes = key + scales[scale]
     else:
         chord_root = chord_priority[random.randint(0, 6)]
-        send_pads(random.randint(0, 1))
+        if sdiv % 2 == 0:
+            send_pads(1)
         if intensity_cat != 3:
+            # turn on/off hi hats
             note_map[2, ] = np.repeat(1, subdivs)
             octave = 3
             clear_channels()
