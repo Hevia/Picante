@@ -291,7 +291,7 @@ def update_note_map(sdiv, index):
             key_notes = key + scales[scale]
 
 
-for i in range(subdivs * 24):
+while True:
     sleep_time = max([0, (bpm - offset)])
     time.sleep(sleep_time)
 
