@@ -17,7 +17,13 @@ class Communication_Device:
 		
 		# What type of input are we dealing with (Serial, Socket, etc)
 		if InType is None:
-			self.InType, self.Port = ('COM', self.listSerialPorts()[0]) # assume the first port is Arduino 
+			#self.InType, self.Port = ('COM', self.listSerialPorts()[0]) # assume the first port is Arduino
+			if sys.platform.startswith('win'):
+				self.InType = 'COM'
+				self.Port = 'COM3'
+			else:
+				self.InType = 'tty*'
+				self.Port = '/dev/ttyACM0'
 		else:
 			self.InType = InType
 			self.Port = Port
@@ -63,19 +69,23 @@ class Communication_Device:
 		timeout = time.time() + 60*0.30 # Read data for 30 seconds
 
 		while True:
-			if sys.platform.startswith('win'):
-				leap_data = self.process_frame(self.leap.frame())
-			else:
-				leap_data = self.process_frame(self.leap[0].frame())
+			try:
+				if sys.platform.startswith('win'):
+					leap_data = self.process_frame(self.leap.frame())
+				else:
+					leap_data = self.process_frame(self.leap[0].frame())
 
-			if leap_data:
-				print(leap_data)
-			arduino_data = self.arduino.readline()[:-2].decode("utf-8")
-			if arduino_data:
-				print(arduino_data)
-			
-			self.log_data(leap_data, arduino_data)
-			if time.time() > timeout:
+				if leap_data:
+					print(leap_data)
+				arduino_data = self.arduino.readline()[:-2].decode("utf-8")
+				if arduino_data:
+					print(arduino_data)
+
+				self.log_data(leap_data, arduino_data)
+				#if time.time() > timeout:
+					#break
+			except KeyboardInterrupt:
+				print("Keyboard Interrupt")
 				break
 
 		if not sys.platform.startswith('win'):

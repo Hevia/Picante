@@ -105,7 +105,9 @@ class Sensor:
 
     # This calculates the total length of the recording
     def mapTime(self):
-        return self.time[len(self.time)-1] / 1000
+        if len(self.time) > 0:
+            return self.time[len(self.time)-1] / 1000
+        return 1
 
     # send 3 bools for positive/negative quadrants of position
     # send 3 bools for each speed of the velocity

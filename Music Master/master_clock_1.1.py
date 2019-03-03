@@ -139,7 +139,9 @@ def play_lead(on, note):
         playing_note = note + octave * 12
         midiout.send_message([0x92, note + octave * 12, 112])
     else:
-        midiout.send_message(([0x82, note + octave * 12, 0]))
+        if playing_note != -1:
+            midiout.send_message([0x82, playing_note, 0])
+        #midiout.send_message(([0x82, playing_note, 0]))
         playing_note = -1
 
 
@@ -276,6 +278,7 @@ def update_note_map(sdiv, index):
         chord_root = chord_priority[random.randint(0, 6)]
         send_pads(random.randint(0, 1))
         if intensity_cat != 3:
+            note_map[2, ] = np.repeat(1, subdivs)
             octave = 3
             clear_channels()
             intensity_cat = 3
