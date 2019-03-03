@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
 import math
+import numpy as np
 import csv
 
 style.use('fivethirtyeight')
@@ -11,7 +12,7 @@ class Sensor:
     # Get figure objects from sensor to the
 
     # Store information
-    def __init__(self, n_sec=0.25, scaling=0.09):
+    def __init__(self, n_sec=0.25, scaling=200):
         self.n_sec = n_sec
         self.interval = 0.0
         self.scaling = scaling
@@ -22,31 +23,79 @@ class Sensor:
         self.fig = plt.figure()
         self.ax1 = self.fig.add_subplot(1,1,1)
 
+    # OLD FUNCTION
+    # def mapData(self):
+    #     slope = 0
+    #     mapped_val = 0
+    #     loop_interval = self.calc_interval()
+    #     loop_interval = math.ceil(loop_interval)
+    #     loop_interval = int(loop_interval)
+    #
+    #     for i in range(0, len(self.values)-1, loop_interval):
+    #         if i >= len(self.values) or i+loop_interval >= len(self.values):
+    #             break
+    #         else:
+    #             slope = (self.values[i+loop_interval] - self.values[i]) / loop_interval
+    #             slope /= self.scaling
+    #
+    #             if slope < 0:
+    #                 slope = math.floor(slope)
+    #             elif slope > 0:
+    #                 slope = math.ceil(slope)
+    #
+    #             if slope > 4:
+    #                 slope = 4
+    #             elif slope < -4:
+    #                 slope = -4
+    #             self.mapped_data.append(int(slope))
+
+    # Implement regression analysis, create a "moving window" for data to stream in and recalculate the regression each
+    #   time window moves
+    # Hopefully, passing in data writes to an output file that is read dynamically, can just do "write line" after each
+    #   calculation sequence.
+    # Write new line at the end.
     def mapData(self):
         slope = 0
         mapped_val = 0
-        loop_interval = self.calc_interval() 
+        window_size = 20
+
+        # What does the loop interval even do???
+        loop_interval = self.calc_interval()
         loop_interval = math.ceil(loop_interval)
         loop_interval = int(loop_interval)
 
-        for i in range(0, len(self.values)-1, loop_interval):
-            if i >= len(self.values) or i+loop_interval >= len(self.values):
-                break
-            else:
-                slope = (self.values[i+loop_interval] - self.values[i]) / loop_interval
-                slope /= self.scaling
+        # Loop through the GSR values
+        for i in range(10, len(self.values)-1, 1):
+            # Get the sample window size
+            window_low = i - window_size
+            window_high = i
+            if window_low < 0:
+                window_low = 0;
 
-                if slope < 0:
-                    slope = math.floor(slope)
-                elif slope > 0:
-                    slope = math.ceil(slope)
+            window_sample_time = self.time[window_low: window_high]
+            window_sample_values = self.values[window_low: window_high]
 
-                if slope > 4:
-                    slope = 4
-                elif slope < -4:
-                    slope = -4
-                self.mapped_data.append(int(slope))
-       
+            # Get linear approximation of the slope of window data
+            slope, intercept = np.polyfit(window_sample_time, window_sample_values, 1)
+            mapped_val = slope*self.scaling
+
+            if mapped_val < 0:
+                mapped_val = -(math.exp(-mapped_val)-1)
+                #print(window_low, ",", window_high, ",", slope, ",", mapped_val)
+                mapped_val = math.ceil(mapped_val)
+
+            elif mapped_val > 0:
+                mapped_val = math.exp(mapped_val)-1
+                #print(window_low, ",", window_high, ",", slope, ",", mapped_val)
+                mapped_val = math.floor(mapped_val)
+
+            if mapped_val > 4:
+                mapped_val = 4
+            elif mapped_val < -4:
+                mapped_val = -4
+
+            self.mapped_data.append(int(mapped_val))
+
 
     # This calculates the total length of the recording
     def mapTime(self):
