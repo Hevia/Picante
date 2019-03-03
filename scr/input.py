@@ -95,8 +95,8 @@ class Communication_Device:
 				pos = (h.palm_normal.x, h.palm_normal.y, h.palm_normal.z)
 				vel = (h.palm_velocity.x,h.palm_velocity.y,h.palm_velocity.z)
 				values = (pos, vel)
-				data[i] = pos
-				print(pos, vel)
+				data[i] = values
+				print(values)
 				#for finger in h.fingers:
 					#print(finger.type)
 					#for bone in finger.bones:
