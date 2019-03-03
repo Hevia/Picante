@@ -31,4 +31,4 @@ Developed by:
 
 * pyserial
 
-* matplotlib
+* LeapPython
