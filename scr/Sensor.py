@@ -54,48 +54,53 @@ class Sensor:
     # Hopefully, passing in data writes to an output file that is read dynamically, can just do "write line" after each
     #   calculation sequence.
     # Write new line at the end.
+
     def mapData(self):
-        slope = 0
-        mapped_val = 0
         window_size = 20
 
-        # What does the loop interval even do???
+        # loop interval creates a new line based on update times
         loop_interval = self.calc_interval()
         loop_interval = math.ceil(loop_interval)
         loop_interval = int(loop_interval)
 
         # Loop through the GSR values
-        for i in range(10, len(self.values)-1, 1):
-            # Get the sample window size
-            window_low = i - window_size
-            window_high = i
-            if window_low < 0:
-                window_low = 0;
-
-            window_sample_time = self.time[window_low: window_high]
-            window_sample_values = self.values[window_low: window_high]
-
-            # Get linear approximation of the slope of window data
-            slope, intercept = np.polyfit(window_sample_time, window_sample_values, 1)
-            mapped_val = slope*self.scaling
-
-            if mapped_val < 0:
-                mapped_val = -(math.exp(-mapped_val)-1)
-                #print(window_low, ",", window_high, ",", slope, ",", mapped_val)
-                mapped_val = math.ceil(mapped_val)
-
-            elif mapped_val > 0:
-                mapped_val = math.exp(mapped_val)-1
-                #print(window_low, ",", window_high, ",", slope, ",", mapped_val)
-                mapped_val = math.floor(mapped_val)
-
-            if mapped_val > 4:
-                mapped_val = 4
-            elif mapped_val < -4:
-                mapped_val = -4
+        for i in range(window_size, len(self.values)-1, 1):
+            mapped_val = self.calcGSR(i, window_size)
 
             self.mapped_data.append(int(mapped_val))
 
+            # Call write function after this.
+
+    def calcGSR(self, index, window_size):
+        # Get the sample window size
+        window_low = index - window_size
+        window_high = index
+        if window_low < 0:
+            window_low = 0;
+
+        window_sample_time = self.time[window_low: window_high]
+        window_sample_values = self.values[window_low: window_high]
+
+        # Get linear approximation of the slope of window data
+        slope, intercept = np.polyfit(window_sample_time, window_sample_values, 1)
+        mapped_val = slope * self.scaling
+
+        if mapped_val < 0:
+            mapped_val = -(math.exp(-mapped_val) - 1)
+            # print(window_low, ",", window_high, ",", slope, ",", mapped_val)
+            mapped_val = math.ceil(mapped_val)
+
+        elif mapped_val > 0:
+            mapped_val = math.exp(mapped_val) - 1
+            # print(window_low, ",", window_high, ",", slope, ",", mapped_val)
+            mapped_val = math.floor(mapped_val)
+
+        if mapped_val > 4:
+            mapped_val = 4
+        elif mapped_val < -4:
+            mapped_val = -4
+
+        return mapped_val
 
     # This calculates the total length of the recording
     def mapTime(self):
@@ -150,7 +155,6 @@ class Sensor:
         #     self.mapped_data.append(self.mapData(data))
         #     self.mapped_time.append(self.mapTime(time_stamp))
 
-
     def readData(self, file_name):
         f = open(file_name, 'r')
         for line in f:
@@ -174,7 +178,6 @@ class Sensor:
             for i in range(len(processed[0])):
                 f.write("{0}, {1}, {2}\n".format(processed[0][i],processed[1][i], processed[1][i+1]))
         f.close()
-
 
     def animate(self,i):
         xs = self.mapped_time
