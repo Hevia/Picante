@@ -83,22 +83,26 @@ class Communication_Device:
 
 	if sys.platform.startswith('win'):
 		def process_frame(self, frame):
+
 			data = {};
+			prevData = ()
 			if frame is "Invalid Frame":
 				return None
 
 			#print("Hands: {0}, fingers {1}".format(len(frame), (len(frame[0].fingers)+len(frame[0].fingers))))
 			i = 0;
 			for h in frame:
-				value = (h.palm_normal.x, h.palm_normal.y, h.palm_normal.z)
-				data[i] = value
-				print(h.palm_normal.x, h.palm_normal.y, h.palm_normal.z)
+				pos = (h.palm_normal.x, h.palm_normal.y, h.palm_normal.z)
+				vel = (h.palm_velocity.x,h.palm_velocity.y,h.palm_velocity.z)
+				values = (pos, vel)
+				data[i] = pos
+				print(pos, vel)
 				#for finger in h.fingers:
 					#print(finger.type)
 					#for bone in finger.bones:
 						#print(bone.type)
 				i+=1
-			return data
+			return values
 	else:
 		def process_frame(self, frame):
 
