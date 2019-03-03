@@ -95,7 +95,7 @@ def get_input():
     f = open("fancy-out.txt", 'r')
     fp = f.read().splitlines()
     f.close()
-    return int(fp[len(fp) - 1].split(',')[0])
+    return [int(x) for x in fp[len(fp) - 1].split(',')]
 
 
 def clear_channels():
@@ -182,14 +182,14 @@ def update_note_map(sdiv, index):
     global key_notes
     global intensity_cat
 
+    latest_sensor_data = get_input()
+
     # melody
     note_on = random.randrange(-1, 2, 2)
     note_length = random.randint(2, 6)
     # Change Melody
-    if random.random() < 0.7:
-        melody_note_change = get_input()
-        if melody_note_change == 0:
-            melody_note_change = random.randint(-1, 1)
+    if latest_sensor_data[1] != 0:
+        melody_note_change = latest_sensor_data[1]
         global melody_note
         melody_note = (melody_note + melody_note_change) % 8
         note_map[4, sdiv] = note_on
@@ -203,11 +203,8 @@ def update_note_map(sdiv, index):
     # intensity
     # intensity_change = random.randint(0, 1)
     # intensity = clamp(intensity + intensity_change, 0, 15)
-    intensity_change = random.random()
-    if intensity_change < 0.1:
-        intensity = clamp(intensity - 1, 0, 15)
-    elif intensity_change < 0.5:
-        intensity = clamp(intensity + 1, 0, 15)
+    intensity_change = latest_sensor_data[0]
+    intensity = clamp(intensity + intensity_change, 0, 15)
     print(str(intensity))
     if intensity < 3:
         if intensity_cat != 0:
