@@ -41,6 +41,7 @@ stacked_fifths = np.array([-12, 0, 7, 14])
 major_chords = np.array([major_7, minor_7, minor_7, major_7, dom_7 - 12, minor_7 - 12, dim_7 - 12])
 minor_chords = np.array([minor_7, dim_7, major_7, minor_7 - 12, minor_7 - 12, major_7 - 12, dom_7 - 12])
 
+mode_chords = np.array([major_chords, minor_chords])
 # Set up priority of chords
 chord_priority = [0, 3, 4, 1, 5, 2, 6]
 
@@ -83,8 +84,10 @@ melody_note = 0
 chord_root = 0
 index_counter = 0
 octave = 0
+mode = 1
 intensity = -1
 intensity_cat = 0
+resolved = False
 
 
 def clamp(n, minn, maxn):
@@ -122,12 +125,12 @@ def play_chords(on, chord):
     if on:
         global playing_chord
         if playing_chord != -1:
-            for n in minor_chords[playing_chord]:
+            for n in mode_chords[mode, playing_chord]:
                 send_chords(False, key_notes[playing_chord] + n)
         playing_chord = chord
     else:
         playing_chord = -1
-    for n in minor_chords[chord]:
+    for n in mode_chords[mode, chord]:
         send_chords(on, key_notes[chord] + n)
 
 
@@ -162,11 +165,17 @@ def send_pads(on):
         midiout.send_message([0x94 + 16 * on, key_notes[0] - 24 + n, 112])
 
 
-def key_change(new_key):
+def key_change(new_key, new_scale):
     print("Changing to " + new_key)
     clear_channels()
     global key
+    global key_notes
+    global scale
+    global mode
     key = key_roots[new_key]
+    scale = new_scale
+    mode = 0
+    key_notes = key + scales[new_scale]
 
 
 def update_note_map(sdiv, index):
@@ -222,6 +231,8 @@ def update_note_map(sdiv, index):
         if intensity_cat != 1:
             # turn on/off hi hats
             note_map[2, ] = np.repeat(0, subdivs)
+            # randomly distribute kicks
+            note_map[0, range(0, subdivs, int(subdivisions/2))] = random.randint(0, 1)
             clear_channels()
             intensity_cat = 1
             octave = 1
@@ -246,7 +257,7 @@ def update_note_map(sdiv, index):
             key_notes = key + scales[scale]
     elif intensity < 11:
         chord_root = chord_priority[random.randint(0, 4)]
-        if intensity_cat != 2:
+        if intensity_cat != 3:
             # turn on/off hi hats
             note_map[2, ] = np.repeat(random.randint(0, 1), subdivs)
             octave = 1
@@ -256,36 +267,46 @@ def update_note_map(sdiv, index):
             # Set bass line
             note_map[5, ] = np.repeat([1, 0, 1, 0], subdivs/4)
             # set intensity category
-            intensity_cat = 2
+            intensity_cat = 3
             # Harmonic Minor
             scale = 5
             key_notes = key + scales[scale]
     elif intensity < 15:
         chord_root = chord_priority[random.randint(0, 6)]
-        if intensity_cat != 3:
+        if intensity_cat != 4:
             # turn on/off hi hats
             note_map[2, ] = np.repeat(random.randint(0, 1), subdivs)
+            # randomly distribute kicks
+            note_map[0, range(0, subdivs, int(subdivisions/2))] = random.randint(0, 1)
             octave = 2
             # Set bass line
             note_map[5, ] = np.repeat(1, subdivs)
             clear_channels()
-            intensity_cat = 3
+            intensity_cat = 4
             # Altered Scale
             scale = 6
             key_notes = key + scales[scale]
     else:
         chord_root = chord_priority[random.randint(0, 6)]
+        global resolved
         if sdiv % 2 == 0:
             send_pads(1)
-        if intensity_cat != 3:
+        if intensity_cat != 5:
             # turn on/off hi hats
             note_map[2, ] = np.repeat(1, subdivs)
+            # randomly distribute kicks
+            note_map[0, ] = np.array([1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0])
             octave = 3
             clear_channels()
-            intensity_cat = 3
+            intensity_cat = 5
             # Diminished Scale
             scale = 7
             key_notes = key + scales[scale]
+        if index > subdivs * 16 and not resolved:
+            key_change("C", 0)
+            resolved = True
+            # Turn off snares
+            note_map[1, ] = np.repeat(0, subdivs)
 
 
 while True:
