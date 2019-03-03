@@ -112,30 +112,40 @@ class Sensor:
 
     def calc_hand_stuff(self, in_file):
         out = []
-        # for line in in_file:
-        #     hand_data = line.strip('\n').replace('(', '').replace(')','').replace(' ', '').split(',')
-        #     left_hand = hand_data[2:5]
-        #     right_hand = hand_data[5:]
-        #
-        #     #print(left_hand)
-        #     #sum_left = sum_right = 0
-        #     sum_left = float(left_hand[0])+float(left_hand[1])+float(left_hand[2])
-        #
-        #     sum_right = float(right_hand[0])+float(right_hand[1])+float(right_hand[2])
-        #
-        #     if sum_left < 0:
-        #         out.append(-1)
-        #     elif sum_left > 0:
-        #         out.append(1)
-        #     else:
-        #         out.append(0)
-        #
-        #     if sum_right < 0:
-        #         out.append(-1)
-        #     elif sum_right > 0:
-        #         out.append(1)
-        #     else:
-        #         out.append(0)
+        for line in in_file:
+             hand_data = line.strip('\n').replace('(', '').replace(')','').replace(' ', '').split(',')
+             #print(hand_data)
+             left_hand = hand_data[2:5]
+             right_hand = hand_data[5:8]
+             left_velocity = hand_data[8:11]
+             right_velocity = hand_data[11:]
+        
+             print("-------------------------")
+             print(left_hand)
+             print(right_hand)
+             print(left_velocity)
+             print(right_velocity)
+             sum_left = sum_right = rV = lV = 0
+             if left_hand and not left_hand[0] == '':
+                sum_left = float(left_hand[0])+float(left_hand[1])+float(left_hand[2])
+             if right_hand and not right_hand[0] == '':
+                sum_right = float(right_hand[0])+float(right_hand[1])+float(right_hand[2])
+        
+             lV, rV = FUNCTION(left_velocity, right_velocity)
+             
+             if sum_left < 0:
+                 out.append(-1)
+             elif sum_left > 0:
+                 out.append(1)
+             else:
+                 out.append(0)
+        
+             if sum_right < 0:
+                 out.append(-1)
+             elif sum_right > 0:
+                 out.append(1)
+             else:
+                 out.append(0)
 
         return out
 
