@@ -1,0 +1,11 @@
+# Minimum Viable Product
+Three step goal for success/backup plans
+
+* All windows build
+** Two separate programs sharing folder
+
+* Half-build of Win/Linux
+** Windows -> Midi
+** Linus -> Data processing
+
+* RNG FTW

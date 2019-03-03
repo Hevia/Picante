@@ -28,8 +28,7 @@ class Communication_Device:
 			self.leap = self.__initLeap() # SEG FAULT HERE
 		except (OSError, serial.SerialException):
 			panic()
-			
-		
+
 	def __initLeap(self):
 		return leap_input.create_controller()
 	
@@ -82,38 +81,58 @@ class Communication_Device:
 		if not sys.platform.startswith('win'):
 			self.leap[0].remove_listener(self.leap[1])
 
-	def process_frame(self, frame):
-		
-		if frame is "Invalid Frame":
-			return None
-		
-		data = {}
-		print("Frame id: {0}, timestamp {1}, hands: {2}, fingers {3}".format(frame.id, frame.timestamp, len(frame.hands), len(frame.fingers)))
+	if sys.platform.startswith('win'):
+		def process_frame(self, frame):
+			data = {};
+			print(frame)
+			if frame is "Invalid Frame":
+				return None
 
-		# Get hands
-		for hand in frame.hands:
-			handData = []
-			handType = "LH" if hand.is_left else "RH"
-			print("   {0}, id {1}, position: {0}".format(handType, hand.id, hand.palm_position))
-			handData.append(hand.palm_position)
-			# Get the hand's normal vector and direction
-			normal = hand.palm_normal
-			direction = hand.direction
+			#print("Hands: {0}, fingers {1}".format(len(frame), (len(frame[0].fingers)+len(frame[0].fingers))))
+			i = 0;
+			for h in frame:
+				value = (h.palm_normal.x, h.palm_normal.y, h.palm_normal.z)
+				data[i] = value
+				print(h.palm_normal.x, h.palm_normal.y, h.palm_normal.z)
+				#for finger in h.fingers:
+					#print(finger.type)
+					#for bone in finger.bones:
+						#print(bone.type)
+				i+=1
+			return data
+	else:
+		def process_frame(self, frame):
 
-			# Calculate the hand's pitch, roll and yaw angles
-			print("   pitch: {0} degrees, roll: {1} degrees, yaw: {2} degrees".format(direction.pitch * Leap.RAD_TO_DEG, normal.roll * Leap.RAD_TO_DEG, direction.yaw * Leap.RAD_TO_DEG))
-			handData.append((direction.pitch * Leap.RAD_TO_DEG, normal.roll * Leap.RAD_TO_DEG, direction.yaw * Leap.RAD_TO_DEG))
+			if frame is "Invalid Frame":
+				return None
 
-			# Get fingers
-			for finger in hand.fingers:
-				print("     {0} finger, id {1}, lenght: {2}mm, width {3}mm".format(self.finger_names[finger.type], finger.id, finger.length, finger.width))
-			
-			data[handType] = handData
-			
-		return data
+			data = {}
+			print("Frame id: {0}, timestamp {1}, hands: {2}, fingers {3}".format(frame.id, frame.timestamp, len(frame.hands), len(frame.fingers)))
+
+			# Get hands
+			for hand in frame.hands:
+				handData = []
+				handType = "LH" if hand.is_left else "RH"
+				print("   {0}, id {1}, position: {0}".format(handType, hand.id, hand.palm_position))
+				handData.append(hand.palm_position)
+				# Get the hand's normal vector and direction
+				normal = hand.palm_normal
+				direction = hand.direction
+
+				# Calculate the hand's pitch, roll and yaw angles
+				print("   pitch: {0} degrees, roll: {1} degrees, yaw: {2} degrees".format(direction.pitch * Leap.RAD_TO_DEG, normal.roll * Leap.RAD_TO_DEG, direction.yaw * Leap.RAD_TO_DEG))
+				handData.append((direction.pitch * Leap.RAD_TO_DEG, normal.roll * Leap.RAD_TO_DEG, direction.yaw * Leap.RAD_TO_DEG))
+
+				# Get fingers
+				for finger in hand.fingers:
+					print("     {0} finger, id {1}, lenght: {2}mm, width {3}mm".format(self.finger_names[finger.type], finger.id, finger.length, finger.width))
+
+				data[handType] = handData
+
+			return data
 		
 	def log_data(self, leap_data, ardin_data):
 		f.write("{0}, {1}".format(ardin_data, leap_data))
-		
+
 c = Communication_Device()
 c.read_data_stream()
