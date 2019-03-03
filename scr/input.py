@@ -85,7 +85,6 @@ class Communication_Device:
 		def process_frame(self, frame):
 
 			data = {};
-			prevData = ()
 			if frame is "Invalid Frame":
 				return None
 
@@ -94,15 +93,16 @@ class Communication_Device:
 			for h in frame:
 				pos = (h.palm_normal.x, h.palm_normal.y, h.palm_normal.z)
 				vel = (h.palm_velocity.x,h.palm_velocity.y,h.palm_velocity.z)
-				values = (pos, vel)
-				data[i] = values
+				values = pos, vel
+				data[i] = pos
+				data[i+1] = vel
 				print(values)
 				#for finger in h.fingers:
 					#print(finger.type)
 					#for bone in finger.bones:
 						#print(bone.type)
-				i+=1
-			return values
+				i+=2
+			return data
 	else:
 		def process_frame(self, frame):
 
@@ -135,7 +135,13 @@ class Communication_Device:
 			return data
 		
 	def log_data(self, leap_data, ardin_data):
-		f.write("{0}, {1} \n".format(ardin_data, leap_data))
+		if not ardin_data or not leap_data:
+			return
+
+		f.write("{0}, ".format(ardin_data))
+		for key in leap_data.keys():
+			f.write("{0}, ".format(leap_data[key]))
+		f.write("\n")
 
 c = Communication_Device()
 c.read_data_stream()

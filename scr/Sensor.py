@@ -23,6 +23,7 @@ class Sensor:
         self.fig = plt.figure()
         self.ax1 = self.fig.add_subplot(1,1,1)
 
+        self.handValues = ()
     # OLD FUNCTION
     # def mapData(self):
     #     slope = 0
@@ -58,7 +59,7 @@ class Sensor:
     def mapData(self):
         window_size = 20
 
-        # loop interval creates a new line based on update times
+        # loop interval creates a new line based on update times?
         loop_interval = self.calc_interval()
         loop_interval = math.ceil(loop_interval)
         loop_interval = int(loop_interval)
@@ -106,32 +107,35 @@ class Sensor:
     def mapTime(self):
         return self.time[len(self.time)-1] / 1000
 
-    def calc_hand_stuff(self, f):
+    # send 3 bools for positive/negative quadrants of position
+    # send 3 bools for each speed of the velocity
+
+    def calc_hand_stuff(self, in_file):
         out = []
-        for line in f:
-            hand_data = line.strip('\n').replace('(', '').replace(')','').replace(' ', '').split(',')
-            left_hand = hand_data[2:5]
-            right_hand = hand_data[5:]
-
-            #print(left_hand)
-            #sum_left = sum_right = 0
-            sum_left = float(left_hand[0])+float(left_hand[1])+float(left_hand[2])
-            
-            sum_right = float(right_hand[0])+float(right_hand[1])+float(right_hand[2])
-
-            if sum_left < 0:
-                out.append(-1)
-            elif sum_left > 0:
-                out.append(1)
-            else:
-                out.append(0)
-
-            if sum_right < 0:
-                out.append(-1)
-            elif sum_right > 0:
-                out.append(1)
-            else:
-                out.append(0)
+        # for line in in_file:
+        #     hand_data = line.strip('\n').replace('(', '').replace(')','').replace(' ', '').split(',')
+        #     left_hand = hand_data[2:5]
+        #     right_hand = hand_data[5:]
+        #
+        #     #print(left_hand)
+        #     #sum_left = sum_right = 0
+        #     sum_left = float(left_hand[0])+float(left_hand[1])+float(left_hand[2])
+        #
+        #     sum_right = float(right_hand[0])+float(right_hand[1])+float(right_hand[2])
+        #
+        #     if sum_left < 0:
+        #         out.append(-1)
+        #     elif sum_left > 0:
+        #         out.append(1)
+        #     else:
+        #         out.append(0)
+        #
+        #     if sum_right < 0:
+        #         out.append(-1)
+        #     elif sum_right > 0:
+        #         out.append(1)
+        #     else:
+        #         out.append(0)
 
         return out
 
@@ -141,10 +145,10 @@ class Sensor:
         self.interval = self.n_sec * (len(self.values)/self.mapTime())
         return self.interval
 
-    def addData(self, time_stamp, data):
+    # Making two "add data" objects for the moment. Need to adjust object-oriented nature in the future
+    def addGSRData(self, time_stamp, data):
         self.values.append(data)
         self.time.append(time_stamp)
-
         # We won't calculate data until we hit certain intervals of the list
         # if len(self.values) <= self.interval:
         #     self.values.append(data)
@@ -155,13 +159,19 @@ class Sensor:
         #     self.mapped_data.append(self.mapData(data))
         #     self.mapped_time.append(self.mapTime(time_stamp))
 
+    # In future iterations, merge addHandData and addGSRData to one method
+    def addHandData(self, data):
+        self.handValues = data
+
     def readData(self, file_name):
         f = open(file_name, 'r')
         for line in f:
             cols = line.split(',')
             cols[1].strip('\n')
-            self.addData(int(cols[1]), int(cols[0]))
+            self.addGSRData(int(cols[1]), int(cols[0]))
+            self.addHandData(cols[2])
         self.mapData()
+        print(self.handValues)
 
     def process_data(self, file_in):
         retval = []
